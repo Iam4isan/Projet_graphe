@@ -20,13 +20,14 @@ class graphe:
     self._graphe = {}
 
   def ajouter_sommet(self, sommet):
-    self._graphe[sommet] = []
+      if sommet not in self._graphe:
+        self._graphe[sommet] = []
 
   def ajouter_arete(self, s1, s2, poids):
-    if s2 not in self._graphe[s1]:
-      self._graphe[s1].append((s2,poids))
-    if s1 not in self._graphe[s2]:
-      self._graphe[s2].append((s1,poids))
+    if s2 not in [x[0] for x in self._graphe[s1]]:
+            self._graphe[s1].append((s2, poids))
+    if s1 not in [x[0] for x in self._graphe[s2]]:
+            self._graphe[s2].append((s1, poids))
 
   def parcours_profondeur(self, sommet_depart):
     pile = Pile([])
@@ -55,6 +56,8 @@ class graphe:
       retour = [i[0] for i in self._graphe[s]]
     return retour
 
+  def DonneDegre(self, s):
+    return len(self.DonneSommetsAdjacents(s))
 
   def Matrice_Adjacente(self):
     M = [[0 for _ in range(self.Ordre())] for _ in range(self.Ordre())]

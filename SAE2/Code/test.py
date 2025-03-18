@@ -35,28 +35,51 @@ points = np.array(liste)
 G = graphe()
 
 tri = sp.Delaunay(points)
-#print(tri.simplices[0][0], tri.simplices[0][1])
 
-for i in range(0, 3):
-     G.ajouter_sommet(int(tri.simplices[0][i]))
+for simplex in tri.simplices:
+      for sommet in simplex:
+            G.ajouter_sommet(int(sommet))
+
+      for i in range(3):
+            for j in range(i + 1, 3): # eviter les doublons
+                  s1 = int(simplex[i])
+                  s2 = int(simplex[j])
+                  G.ajouter_arete(s1, s2, 1)
+
+def indice_repartition(station):
+      if G.DonneDegre(station) == 6:
+            return 0
+      else:
+            capa_max = 0 # on determine la capacite max
+            for i in range(len(fichier[0][2])):
+                  capa_max += fichier[0][2][i]['capacity']
+            ind = 0 # on determine d'indice de la station
+            for i, j in zip(G._graphe.keys(), range(len(G._graphe))):
+                  if i == station:
+                        ind = j
+            capa = fichier[0][2][ind]['capacity']
+            connec = G.DonneDegre(station)
+            alpha = 1 # ça rend bien avec 1 \_0_/
+            return alpha*((connec-6)/6) + (1-alpha)*((capa_max-capa)/capa_max)
 
 for i in G._graphe:
-     for j in G._graphe:
-          if j != i:
-            G.ajouter_arete(i, j, 1)
+      print(indice_repartition(i))
 
-for i in G._graphe:
-    unique_edges = set(G._graphe[i])
-    G._graphe[i] = list(unique_edges)
+# liste_deg = []
+# for i in G._graphe:
+#       liste_deg.append(G.DonneDegre(i))
+# print(np.mean(liste_deg)) # -> revoie environ 6
 
-G.afficher()
+#print(G._graphe)
+
+# for i in G._graphe:
+#       print(i, G._graphe[i])
+
+#print(G.DonneDegre(1143))
 
 plt.triplot(points[:,0], points[:,1], tri.simplices)
 plt.plot(points[:,0], points[:,1], 'o')
 #plt.show()
-
-#for i in range(len(fichier[0][2])):
-#      print(fichier[0][2][i]['name'])
 
 m = f.Map(location=[np.mean(points[:,0]), np.mean(points[:,1])], zoom_start=12, popup="", legend_name="Velib_station")
 
